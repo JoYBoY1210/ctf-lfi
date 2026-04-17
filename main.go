@@ -10,7 +10,7 @@ import (
 var AdminApiKey string
 
 func init() {
-	
+
 	AdminApiKey = os.Getenv("CTF_CORE_SECRET_KEY")
 }
 
@@ -31,6 +31,7 @@ func readHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "file not found: "+err.Error(), http.StatusNotFound)
 		return
 	}
+	w.Header().Set("X-Powered-By", "Go-Fiber/v2.1")
 	w.Header().Set("Content-Type", "text/plain")
 	w.Write(data)
 }
@@ -49,7 +50,7 @@ func flagHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	http.HandleFunc("/api/read", readHandler)
 	http.HandleFunc("/api/flag", flagHandler)
-	
+
 	fmt.Println("Hardened CTF Server running on http://localhost:8080")
 
 	http.ListenAndServe(":8080", nil)
