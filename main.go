@@ -26,6 +26,11 @@ func readHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if strings.Contains(strings.ToLower(fileName), "batman") {
+		http.Error(w, "WAF ALERT: Access to flag files is strictly prohibited.", http.StatusForbidden)
+		return
+	}
+
 	data, err := os.ReadFile(fileName)
 	if err != nil {
 		http.Error(w, "file not found: "+err.Error(), http.StatusNotFound)
@@ -41,7 +46,12 @@ func flagHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Check if the player stole the correct key from the environment
 	if apiKey == AdminApiKey {
-		fmt.Fprint(w, "Congratulations! Flag: geek{i_am_6atman}\n")
+		flagdata, err := os.ReadFile("batman.txt")
+		if err != nil {
+			http.Error(w, "Admin authorized, but flag file is missing on the server!", http.StatusInternalServerError)
+			return
+		}
+		fmt.Fprintf(w, "Congratulations! Flag: %s\n", string(flagdata))
 	} else {
 		http.Error(w, "Unauthorized. Valid API Key required in X-API-Key header.", http.StatusUnauthorized)
 	}
